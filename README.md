@@ -57,7 +57,7 @@ A production-ready full-stack School Management System built with Java Spring Bo
    npm run dev
    ```
 4. Open your browser and navigate to `http://localhost:5173`.
-5. Login with Username: `admin` and Password: `admin123`.
+5. Login with Username: `admin`.
 
 ## Further Development
 
