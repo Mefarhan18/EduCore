@@ -3,6 +3,9 @@ import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { resultsApi, studentsApi, subjectsApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 export default function Results() {
   const { user } = useAuth();
@@ -108,13 +111,59 @@ export default function Results() {
     setIsModalOpen(true);
   };
 
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    
+    // School Header
+    doc.setFontSize(24);
+    doc.setTextColor(49, 46, 129);
+    doc.text("Springfield High School", 105, 20, { align: "center" });
+    
+    doc.setFontSize(16);
+    doc.setTextColor(63, 81, 181);
+    doc.text("Official Examination Report", 105, 30, { align: "center" });
+
+    doc.setDrawColor(224, 231, 255);
+    doc.setLineWidth(0.5);
+    doc.line(14, 35, 196, 35);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Student Name: ${user?.username || 'Student'}`, 14, 45);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 52);
+
+    const tableColumn = ["Subject", "Exam Term", "Marks", "Grade"];
+    const tableRows = [];
+
+    results.forEach(record => {
+      const resultData = [
+        record.subject?.subjectName || record.subject?.name || 'N/A',
+        record.examTerm,
+        record.marks,
+        record.grade
+      ];
+      tableRows.push(resultData);
+    });
+
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 60,
+      theme: 'grid',
+      headStyles: { fillColor: [63, 81, 181] },
+      styles: { fontSize: 10, cellPadding: 3 }
+    });
+
+    doc.save(`Student_Result_Report.pdf`);
+  };
+
   if (loading) return <div className="p-6">Loading...</div>;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-purple-600">Results</h1>
-        {user?.role !== 'ROLE_STUDENT' && (
+        {user?.role !== 'ROLE_STUDENT' ? (
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -122,6 +171,16 @@ export default function Results() {
             className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:from-indigo-700 hover:to-purple-700 transition-colors shadow-lg shadow-indigo-200 font-medium"
           >
             <Plus className="w-5 h-5" /> Add Result
+          </motion.button>
+        ) : (
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={generatePDF}
+            disabled={results.length === 0}
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:from-emerald-600 hover:to-teal-600 transition-colors shadow-lg shadow-emerald-200 font-medium"
+          >
+            <Download className="w-5 h-5" /> Download PDF
           </motion.button>
         )}
       </div>

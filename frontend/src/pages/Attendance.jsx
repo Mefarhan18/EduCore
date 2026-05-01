@@ -13,6 +13,16 @@ export default function Attendance() {
     date: '',
     status: 'PRESENT'
   });
+  const [bulkDate, setBulkDate] = useState(new Date().toISOString().split('T')[0]);
+  const [bulkStatus, setBulkStatus] = useState({});
+
+  useEffect(() => {
+    if (students.length > 0) {
+      const initial = {};
+      students.forEach(s => initial[s.id] = 'PRESENT');
+      setBulkStatus(initial);
+    }
+  }, [students]);
 
   useEffect(() => {
     fetchData();
@@ -67,6 +77,24 @@ export default function Attendance() {
     }
   };
 
+  const handleBulkSubmit = async () => {
+    try {
+      const promises = Object.keys(bulkStatus).map(studentId => {
+        return attendanceApi.create({
+          student: { id: parseInt(studentId) },
+          date: bulkDate,
+          status: bulkStatus[studentId]
+        });
+      });
+      await Promise.all(promises);
+      alert('Bulk attendance marked successfully!');
+      fetchData();
+    } catch (error) {
+      console.error('Failed to save bulk attendance', error);
+      alert('Failed to save some records. They might already exist for this date.');
+    }
+  };
+
   const openModal = (record = null) => {
     if (record) {
       setEditingAttendance(record);
@@ -92,10 +120,57 @@ export default function Attendance() {
           onClick={() => openModal()}
           className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 hover:from-indigo-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg shadow-indigo-200 font-medium"
         >
-          <Plus className="w-5 h-5" /> Add Attendance
+          <Plus className="w-5 h-5" /> Add Individual
         </button>
       </div>
 
+      {/* Bulk Marking Section */}
+      <div className="mb-8 p-6 bg-white/60 backdrop-blur-xl rounded-3xl border border-white/50 shadow-xl shadow-indigo-100">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-indigo-900">Mark Daily Attendance (Bulk)</h2>
+          <div className="flex gap-4 items-center">
+            <input 
+              type="date" 
+              value={bulkDate}
+              onChange={(e) => setBulkDate(e.target.value)}
+              className="rounded-xl bg-white/50 border border-indigo-100 p-2 text-sm focus:ring-2 focus:ring-indigo-500"
+            />
+            <button 
+              onClick={handleBulkSubmit}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors"
+            >
+              Submit All
+            </button>
+          </div>
+        </div>
+        <div className="max-h-64 overflow-y-auto pr-2">
+          <table className="min-w-full divide-y divide-indigo-50">
+            <tbody className="divide-y divide-indigo-50">
+              {students.map(s => (
+                <tr key={s.id} className="hover:bg-indigo-50/30">
+                  <td className="py-3 px-4 text-sm font-medium text-indigo-900">{s.name} ({s.rollNo})</td>
+                  <td className="py-3 px-4 text-right">
+                    <select 
+                      value={bulkStatus[s.id] || 'PRESENT'}
+                      onChange={(e) => setBulkStatus({...bulkStatus, [s.id]: e.target.value})}
+                      className={`text-xs font-bold rounded-xl px-3 py-1 outline-none border-none ${
+                        bulkStatus[s.id] === 'PRESENT' ? 'bg-emerald-100 text-emerald-800' :
+                        bulkStatus[s.id] === 'ABSENT' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      <option value="PRESENT">PRESENT</option>
+                      <option value="ABSENT">ABSENT</option>
+                      <option value="LATE">LATE</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2 className="text-xl font-bold text-indigo-900 mb-4">Recent Records</h2>
       <div className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl shadow-indigo-100 overflow-hidden border border-white/50">
         <table className="min-w-full divide-y divide-indigo-50">
           <thead className="bg-indigo-50/50">
