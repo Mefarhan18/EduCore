@@ -10,7 +10,7 @@ import Subjects from './pages/Subjects';
 import Attendance from './pages/Attendance';
 import Results from './pages/Results';
 import Fees from './pages/Fees';
-
+import Notifications from './pages/Notifications';
 import Users from './pages/Users';
 import StudentDashboard from './pages/StudentDashboard';
 
@@ -32,6 +32,7 @@ function App() {
             <Route path="attendance" element={<Attendance />} />
             <Route path="results" element={<Results />} />
             <Route path="fees" element={<Fees />} />
+            <Route path="notifications" element={<Notifications />} />
             <Route path="users" element={<Users />} />
           </Route>
         </Routes>

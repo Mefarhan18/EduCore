@@ -12,8 +12,9 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     private String title;
     private String message;
@@ -29,5 +30,16 @@ public class Notification {
 
     public enum NotificationType {
         RESULT, FEES, ANNOUNCEMENT
+    }
+
+    public Long getUserId() {
+        return user != null ? user.getId() : null;
+    }
+
+    public void setUserId(Long userId) {
+        if (this.user == null) {
+            this.user = new User();
+        }
+        this.user.setId(userId);
     }
 }

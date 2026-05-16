@@ -23,13 +23,13 @@ public class AttendanceController {
     }
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PARENT')")
     public List<Attendance> getAttendanceByStudentId(@PathVariable Long studentId) {
         return attendanceService.getAttendanceByStudentId(studentId);
     }
 
     @GetMapping("/student/{studentId}/summary")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PARENT')")
     public ResponseEntity<java.util.Map<String, Object>> getAttendanceSummary(@PathVariable Long studentId) {
         List<Attendance> records = attendanceService.getAttendanceByStudentId(studentId);
         long presentCount = records.stream().filter(a -> a.getStatus() == Attendance.AttendanceStatus.PRESENT).count();
@@ -43,17 +43,25 @@ public class AttendanceController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PARENT')")
     public ResponseEntity<Attendance> getAttendanceById(@PathVariable Long id) {
         return attendanceService.getAttendanceById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Autowired
+    private com.example.backend.service.StudentService studentService;
+
+    @Autowired
+    private com.example.backend.service.NotificationService notificationService;
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
     public Attendance createAttendance(@RequestBody Attendance attendance) {
-        return attendanceService.saveAttendance(attendance);
+        Attendance savedAttendance = attendanceService.saveAttendance(attendance);
+        sendAttendanceNotification(savedAttendance);
+        return savedAttendance;
     }
 
     @PutMapping("/{id}")
@@ -62,8 +70,25 @@ public class AttendanceController {
         return attendanceService.getAttendanceById(id).map(attendance -> {
             attendance.setDate(attendanceDetails.getDate());
             attendance.setStatus(attendanceDetails.getStatus());
-            return ResponseEntity.ok(attendanceService.saveAttendance(attendance));
+            Attendance savedAttendance = attendanceService.saveAttendance(attendance);
+            sendAttendanceNotification(savedAttendance);
+            return ResponseEntity.ok(savedAttendance);
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    private void sendAttendanceNotification(Attendance attendance) {
+        if (attendance.getStatus() == Attendance.AttendanceStatus.ABSENT || attendance.getStatus() == Attendance.AttendanceStatus.LATE) {
+            studentService.getStudentById(attendance.getStudent().getId()).ifPresent(student -> {
+                if (student.getParent() != null && student.getParent().getUser() != null) {
+                    com.example.backend.entity.Notification notif = new com.example.backend.entity.Notification();
+                    notif.setUserId(student.getParent().getUser().getId());
+                    notif.setTitle("Attendance Alert");
+                    notif.setMessage("Your child " + student.getName() + " was marked " + attendance.getStatus() + " on " + attendance.getDate() + ".");
+                    notif.setType(com.example.backend.entity.Notification.NotificationType.ANNOUNCEMENT);
+                    notificationService.createNotification(notif);
+                }
+            });
+        }
     }
 
     @DeleteMapping("/{id}")

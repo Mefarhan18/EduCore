@@ -13,7 +13,7 @@ public class NotificationService {
     private NotificationRepository notificationRepository;
 
     public List<Notification> getNotificationsByUserId(Long userId) {
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return notificationRepository.findByUser_IdOrderByCreatedAtDesc(userId);
     }
 
     public Notification createNotification(Notification notification) {

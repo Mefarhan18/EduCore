@@ -2,13 +2,13 @@ package com.example.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
-@Table(name = "students")
+@Table(name = "parents")
 @Data
-public class Student {
+public class Parent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,20 +20,11 @@ public class Student {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "roll_no", unique = true, nullable = false)
-    private String rollNo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "class_id")
-    private Class studentClass;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Parent parent;
-
-    private LocalDate dob;
     private String contact;
     private String address;
+
+    @OneToMany(mappedBy = "parent")
+    private Set<Student> students;
 
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;

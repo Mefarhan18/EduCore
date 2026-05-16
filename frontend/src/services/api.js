@@ -25,9 +25,13 @@ const createCrudService = (endpoint) => ({
   update: (id, data) => api.put(`${endpoint}/${id}`, data).then(res => res.data),
   delete: (id) => api.delete(`${endpoint}/${id}`).then(res => res.data),
   getMe: () => api.get(`${endpoint}/me`).then(res => res.data),
+  pay: (id, data) => api.post(`${endpoint}/${id}/pay`, data).then(res => res.data),
 });
 
-export const studentsApi = createCrudService('/students');
+export const studentsApi = {
+  ...createCrudService('/students'),
+  search: (page, size, keyword) => api.get(`/students/search`, { params: { page, size, keyword } }).then(res => res.data),
+};
 export const teachersApi = createCrudService('/teachers');
 export const classesApi = createCrudService('/classes');
 export const subjectsApi = createCrudService('/subjects');
@@ -35,5 +39,10 @@ export const attendanceApi = createCrudService('/attendance');
 export const resultsApi = createCrudService('/results');
 export const feesApi = createCrudService('/fees');
 export const usersApi = createCrudService('/users');
+
+export const notificationsApi = {
+  ...createCrudService('/notifications'),
+  sendBulk: (data) => api.post('/notifications/bulk', data).then(res => res.data),
+};
 
 export default api;
