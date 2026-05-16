@@ -22,6 +22,15 @@ public class AttendanceController {
         return attendanceService.getAllAttendance();
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('PARENT')")
+    public ResponseEntity<List<Attendance>> getMyAttendance() {
+        com.example.backend.security.UserDetailsImpl userDetails = (com.example.backend.security.UserDetailsImpl) org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return studentService.getStudentByUserId(userDetails.getId())
+                .map(student -> ResponseEntity.ok(attendanceService.getAttendanceByStudentId(student.getId())))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/student/{studentId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PARENT')")
     public List<Attendance> getAttendanceByStudentId(@PathVariable Long studentId) {

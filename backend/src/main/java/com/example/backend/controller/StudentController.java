@@ -67,6 +67,7 @@ public class StudentController {
             student.setDob(studentDetails.getDob());
             student.setContact(studentDetails.getContact());
             student.setAddress(studentDetails.getAddress());
+            student.setUser(studentDetails.getUser());
             Student updatedStudent = studentService.saveStudent(student);
             return ResponseEntity.ok(updatedStudent);
         }).orElse(ResponseEntity.notFound().build());

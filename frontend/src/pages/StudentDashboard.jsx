@@ -7,6 +7,7 @@ import 'jspdf-autotable';
 import { useAuth } from '../context/AuthContext';
 import MarksChart from '../components/charts/MarksChart';
 import AttendanceChart from '../components/charts/AttendanceChart';
+import api from '../services/api';
 
 export default function StudentDashboard() {
   const { user } = useAuth();
@@ -20,28 +21,23 @@ export default function StudentDashboard() {
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/students/me', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        if (response.ok) {
-          const profileData = await response.json();
-          setProfile(profileData);
-          
-          if (profileData && profileData.id) {
-            const [attData, resData, feeData, notifData] = await Promise.all([
-              fetch(`http://localhost:8080/api/attendance/student/${profileData.id}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}).then(r => r.json()),
-              fetch(`http://localhost:8080/api/results/student/${profileData.id}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}).then(r => r.json()),
-              fetch(`http://localhost:8080/api/fees/student/${profileData.id}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}).then(r => r.json()),
-              fetch(`http://localhost:8080/api/notifications`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}).then(r => r.json())
-            ]);
-            setAttendance(attData);
-            setResults(resData);
-            setFees(feeData);
-            setNotifications(notifData);
-          }
+        const [profileRes, attRes, resRes, feeRes, notifRes] = await Promise.all([
+          api.get('/students/me').catch(e => ({ data: null, ok: false })),
+          api.get('/attendance/me').catch(e => ({ data: [], ok: false })),
+          api.get('/results/me').catch(e => ({ data: [], ok: false })),
+          api.get('/fees/me').catch(e => ({ data: [], ok: false })),
+          api.get('/notifications').catch(e => ({ data: [], ok: false }))
+        ]);
+
+        if (profileRes.data) {
+          setProfile(profileRes.data);
         }
+
+        if (attRes.data) setAttendance(attRes.data);
+        if (resRes.data) setResults(resRes.data);
+        if (feeRes.data) setFees(feeRes.data);
+        if (notifRes.data) setNotifications(notifRes.data);
+
       } catch (error) {
         console.error('Failed to fetch student data', error);
       } finally {
