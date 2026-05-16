@@ -46,11 +46,8 @@ export default function Attendance() {
   const fetchData = async () => {
     try {
       if (user?.role === 'ROLE_STUDENT') {
-        const me = await studentsApi.getMe();
-        if (me && me.id) {
-          const attendanceData = await api.get(`/attendance/student/${me.id}`).then(res => res.data);
-          setAttendances(attendanceData);
-        }
+        const attendanceData = await attendanceApi.getMe();
+        setAttendances(attendanceData);
         setStudents([]);
       } else {
         const [attendanceData, studentsData] = await Promise.all([

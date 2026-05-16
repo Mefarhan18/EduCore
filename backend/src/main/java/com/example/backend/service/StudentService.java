@@ -83,26 +83,17 @@ public class StudentService {
     }
 
     public Student saveStudent(Student student) {
-
-        // Create login account for student
-        User user = new User();
-
-        // Username = Roll Number
-        user.setUsername(student.getRollNo());
-
-        // Default password
-        user.setPassword(passwordEncoder.encode("student123"));
-
-        // Assign student role
-        user.setRole(Role.STUDENT);
-
-        // Save user
-        userRepository.save(user);
-
-        // Link user to student
-        student.setUser(user);
-
-        // Save student
+        if (student.getId() == null && student.getUser() == null) {
+            // Only auto-create if username doesn't exist
+            if (userRepository.findByUsername(student.getRollNo()).isEmpty()) {
+                User user = new User();
+                user.setUsername(student.getRollNo());
+                user.setPassword(passwordEncoder.encode("student123"));
+                user.setRole(Role.STUDENT);
+                userRepository.save(user);
+                student.setUser(user);
+            }
+        }
         return studentRepository.save(student);
     }
 
