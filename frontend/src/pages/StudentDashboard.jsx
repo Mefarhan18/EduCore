@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Download } from 'lucide-react';
+import { Download, Bell } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useAuth } from '../context/AuthContext';
@@ -13,14 +14,12 @@ export default function StudentDashboard() {
   const [attendance, setAttendance] = useState([]);
   const [results, setResults] = useState([]);
   const [fees, setFees] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
-        // Fetch student profile via the new /me endpoint
-        // Wait, if we don't have a /me endpoint, we'll need it.
-        // We added /api/students/me in the backend
         const response = await fetch('http://localhost:8080/api/students/me', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -31,14 +30,16 @@ export default function StudentDashboard() {
           setProfile(profileData);
           
           if (profileData && profileData.id) {
-            const [attData, resData, feeData] = await Promise.all([
+            const [attData, resData, feeData, notifData] = await Promise.all([
               fetch(`http://localhost:8080/api/attendance/student/${profileData.id}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}).then(r => r.json()),
               fetch(`http://localhost:8080/api/results/student/${profileData.id}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}).then(r => r.json()),
-              fetch(`http://localhost:8080/api/fees/student/${profileData.id}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}).then(r => r.json())
+              fetch(`http://localhost:8080/api/fees/student/${profileData.id}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}).then(r => r.json()),
+              fetch(`http://localhost:8080/api/notifications`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }}).then(r => r.json())
             ]);
             setAttendance(attData);
             setResults(resData);
             setFees(feeData);
+            setNotifications(notifData);
           }
         }
       } catch (error) {
@@ -168,97 +169,142 @@ export default function StudentDashboard() {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.15 }}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
       >
-        <MarksChart results={results} />
-        <AttendanceChart attendance={attendance} />
-      </motion.div>
-
-      {/* Attendance History Section */}
-      <motion.div 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.25 }}
-        className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl shadow-indigo-100 overflow-hidden border border-white/50"
-      >
-        <div className="px-6 py-4 border-b border-indigo-50/50">
-          <h2 className="text-xl font-bold text-indigo-900">Attendance History</h2>
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <MarksChart results={results} />
+          <AttendanceChart attendance={attendance} />
         </div>
-        <div className="max-h-64 overflow-y-auto">
-          <table className="min-w-full divide-y divide-indigo-50">
-            <thead className="bg-indigo-50/50 sticky top-0">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody className="bg-transparent divide-y divide-indigo-50">
-              {attendance.length > 0 ? attendance.map((record) => (
-                <tr key={record.id} className="hover:bg-indigo-50/30 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-medium">{record.date}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-xl ${
-                      record.status === 'PRESENT' ? 'bg-emerald-100 text-emerald-800' : 
-                      record.status === 'ABSENT' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+        
+        {/* Recent Notifications Widget */}
+        <div className="lg:col-span-1 bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl shadow-indigo-100 overflow-hidden border border-white/50 flex flex-col">
+          <div className="px-6 py-4 border-b border-indigo-50/50 bg-indigo-50/30 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-indigo-900 flex items-center gap-2">
+              <Bell className="w-5 h-5 text-indigo-600" /> Recent Alerts
+            </h2>
+          </div>
+          <div className="divide-y divide-indigo-50 flex-grow">
+            {notifications.length > 0 ? (
+              notifications.slice(0, 4).map(notif => (
+                <div key={notif.id} className="p-4 hover:bg-indigo-50/30 transition-colors">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className={`text-xs font-bold px-2 py-1 rounded-lg ${
+                      notif.type === 'FEES' ? 'bg-rose-100 text-rose-700' :
+                      notif.type === 'RESULT' ? 'bg-emerald-100 text-emerald-700' :
+                      'bg-blue-100 text-blue-700'
                     }`}>
-                      {record.status}
+                      {notif.type}
                     </span>
-                  </td>
-                </tr>
-              )) : (
-                <tr><td colSpan="2" className="px-6 py-4 text-center text-sm text-indigo-400">No attendance records found.</td></tr>
-              )}
-            </tbody>
-          </table>
+                    <span className="text-xs text-indigo-400">
+                      {new Date(notif.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-indigo-900 text-sm mb-1">{notif.title}</h4>
+                  <p className="text-sm text-indigo-600/80 line-clamp-2">{notif.message}</p>
+                </div>
+              ))
+            ) : (
+              <div className="p-8 text-center text-indigo-400 h-full flex flex-col justify-center items-center">
+                <Bell className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                <p className="text-sm">No recent notifications</p>
+              </div>
+            )}
+          </div>
+          {notifications.length > 0 && (
+            <Link to="/notifications" className="block w-full text-center py-3 text-sm font-bold text-indigo-600 bg-indigo-50/50 hover:bg-indigo-100 transition-colors mt-auto">
+              View All Notifications
+            </Link>
+          )}
         </div>
       </motion.div>
 
-      {/* Results Section */}
-      <motion.div 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl shadow-indigo-100 overflow-hidden border border-white/50"
-      >
-        <div className="px-6 py-4 border-b border-indigo-50/50 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-indigo-900">Recent Exam Results</h2>
-          <button
-            onClick={generatePDF}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:from-indigo-700 hover:to-purple-700 transition-colors shadow-md text-sm font-medium"
-            disabled={results.length === 0}
-          >
-            <Download className="w-4 h-4" /> Download PDF
-          </button>
-        </div>
-        <table className="min-w-full divide-y divide-indigo-50">
-          <thead className="bg-indigo-50/50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Subject</th>
-              <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Term</th>
-              <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Marks</th>
-              <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Grade</th>
-            </tr>
-          </thead>
-          <tbody className="bg-transparent divide-y divide-indigo-50">
-            {results.length > 0 ? results.map((record) => (
-              <tr key={record.id} className="hover:bg-indigo-50/30 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-medium">{record.subject?.name || record.subject?.subjectName || 'N/A'}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-700">{record.examTerm}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-bold">{record.marks}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-xl ${
-                    ['A', 'A+', 'B'].includes(record.grade) ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                  }`}>
-                    {record.grade}
-                  </span>
-                </td>
-              </tr>
-            )) : (
-              <tr><td colSpan="4" className="px-6 py-4 text-center text-sm text-indigo-400">No results published yet.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </motion.div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+        {/* Attendance History Section */}
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl shadow-indigo-100 overflow-hidden border border-white/50"
+        >
+          <div className="px-6 py-4 border-b border-indigo-50/50">
+            <h2 className="text-xl font-bold text-indigo-900">Attendance History</h2>
+          </div>
+          <div className="max-h-[300px] overflow-y-auto">
+            <table className="min-w-full divide-y divide-indigo-50">
+              <thead className="bg-indigo-50/50 sticky top-0">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="bg-transparent divide-y divide-indigo-50">
+                {attendance.length > 0 ? attendance.map((record) => (
+                  <tr key={record.id} className="hover:bg-indigo-50/30 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-medium">{record.date}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-xl ${
+                        record.status === 'PRESENT' ? 'bg-emerald-100 text-emerald-800' : 
+                        record.status === 'ABSENT' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {record.status}
+                      </span>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr><td colSpan="2" className="px-6 py-4 text-center text-sm text-indigo-400">No attendance records found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+
+        {/* Results Section */}
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl shadow-indigo-100 overflow-hidden border border-white/50"
+        >
+          <div className="px-6 py-4 border-b border-indigo-50/50 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-indigo-900">Recent Exam Results</h2>
+            <button
+              onClick={generatePDF}
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:from-indigo-700 hover:to-purple-700 transition-colors shadow-md text-sm font-medium"
+              disabled={results.length === 0}
+            >
+              <Download className="w-4 h-4" /> Download PDF
+            </button>
+          </div>
+          <div className="max-h-[300px] overflow-y-auto">
+            <table className="min-w-full divide-y divide-indigo-50">
+              <thead className="bg-indigo-50/50 sticky top-0">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Subject</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Marks</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-indigo-900 uppercase tracking-wider">Grade</th>
+                </tr>
+              </thead>
+              <tbody className="bg-transparent divide-y divide-indigo-50">
+                {results.length > 0 ? results.map((record) => (
+                  <tr key={record.id} className="hover:bg-indigo-50/30 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-medium">{record.subject?.name || record.subject?.subjectName || 'N/A'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-indigo-900 font-bold">{record.marks}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-xl ${
+                        ['A', 'A+', 'B'].includes(record.grade) ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {record.grade}
+                      </span>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr><td colSpan="3" className="px-6 py-4 text-center text-sm text-indigo-400">No results published yet.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      </div>
     </motion.div>
   );
 }

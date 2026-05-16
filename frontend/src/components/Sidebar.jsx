@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { LayoutDashboard, Users, BookOpen, GraduationCap, CalendarCheck, FileText, CreditCard, Bookmark } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, GraduationCap, CalendarCheck, FileText, CreditCard, Bookmark, Megaphone } from 'lucide-react';
 
 export default function Sidebar() {
   const { user } = useContext(AuthContext);
@@ -19,7 +19,8 @@ export default function Sidebar() {
         { name: 'Attendance', path: '/attendance', icon: <CalendarCheck className="w-5 h-5" /> },
         { name: 'Results', path: '/results', icon: <FileText className="w-5 h-5" /> },
         { name: 'Fees', path: '/fees', icon: <CreditCard className="w-5 h-5" /> },
-        { name: 'Users', path: '/users', icon: <Users className="w-5 h-5" /> }
+        { name: 'Users', path: '/users', icon: <Users className="w-5 h-5" /> },
+        { name: 'Announcements', path: '/notifications', icon: <Megaphone className="w-5 h-5" /> }
       );
     } else if (user?.role === 'ROLE_TEACHER') {
       links.push(
@@ -34,6 +35,13 @@ export default function Sidebar() {
         { name: 'My Attendance', path: '/attendance', icon: <CalendarCheck className="w-5 h-5" /> },
         { name: 'My Results', path: '/results', icon: <FileText className="w-5 h-5" /> },
         { name: 'My Fees', path: '/fees', icon: <CreditCard className="w-5 h-5" /> }
+      );
+    } else if (user?.role === 'ROLE_PARENT') {
+      links.push(
+        { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
+        { name: 'Child Attendance', path: '/attendance', icon: <CalendarCheck className="w-5 h-5" /> },
+        { name: 'Child Results', path: '/results', icon: <FileText className="w-5 h-5" /> },
+        { name: 'Child Fees', path: '/fees', icon: <CreditCard className="w-5 h-5" /> }
       );
     }
 
