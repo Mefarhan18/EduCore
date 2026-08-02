@@ -1,4 +1,4 @@
-# School Management System
+# EduCore
 
 A production-ready full-stack School Management System built with Java Spring Boot, React.js (Vite), and MySQL.
 
