@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { LayoutDashboard, Users, BookOpen, GraduationCap, CalendarCheck, FileText, CreditCard, Bookmark, Megaphone } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, GraduationCap, CalendarCheck, FileText, CreditCard, Bookmark, Megaphone, Bot, Sparkles } from 'lucide-react';
 
 export default function Sidebar() {
   const { user } = useContext(AuthContext);
@@ -20,21 +20,25 @@ export default function Sidebar() {
         { name: 'Results', path: '/results', icon: <FileText className="w-5 h-5" /> },
         { name: 'Fees', path: '/fees', icon: <CreditCard className="w-5 h-5" /> },
         { name: 'Users', path: '/users', icon: <Users className="w-5 h-5" /> },
-        { name: 'Announcements', path: '/notifications', icon: <Megaphone className="w-5 h-5" /> }
+        { name: 'Announcements', path: '/notifications', icon: <Megaphone className="w-5 h-5" /> },
+        { name: 'AI Tutor', path: '/ai-chat', icon: <Bot className="w-5 h-5 text-blue-300" /> },
+        { name: 'AI Tools', path: '/ai-tools', icon: <Sparkles className="w-5 h-5 text-orange-300" /> }
       );
     } else if (user?.role === 'ROLE_TEACHER') {
       links.push(
         { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
         { name: 'Students', path: '/students', icon: <Users className="w-5 h-5" /> },
         { name: 'Attendance', path: '/attendance', icon: <CalendarCheck className="w-5 h-5" /> },
-        { name: 'Results', path: '/results', icon: <FileText className="w-5 h-5" /> }
+        { name: 'Results', path: '/results', icon: <FileText className="w-5 h-5" /> },
+        { name: 'AI Tools', path: '/ai-tools', icon: <Sparkles className="w-5 h-5 text-orange-300" /> }
       );
     } else if (user?.role === 'ROLE_STUDENT') {
       links.push(
         { name: 'My Dashboard', path: '/student-dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
         { name: 'My Attendance', path: '/attendance', icon: <CalendarCheck className="w-5 h-5" /> },
         { name: 'My Results', path: '/results', icon: <FileText className="w-5 h-5" /> },
-        { name: 'My Fees', path: '/fees', icon: <CreditCard className="w-5 h-5" /> }
+        { name: 'My Fees', path: '/fees', icon: <CreditCard className="w-5 h-5" /> },
+        { name: 'AI Assistant', path: '/ai-chat', icon: <Bot className="w-5 h-5 text-blue-300" /> }
       );
     } else if (user?.role === 'ROLE_PARENT') {
       links.push(
