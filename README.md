@@ -1,159 +1,666 @@
-<div align="center">
-🎓 EduCore
-A Production-Ready Full-Stack School Management System
+# 🎓 EduCore
 
-Built with Java Spring Boot, React (Vite), and MySQL
+### Full-Stack School Management System
 
-Java Spring Boot React MySQL License
+**EduCore** is a modern school management platform built with **Java Spring Boot, React, and MySQL**. It provides a secure foundation for managing students, teachers, classes, attendance, academic results, fees, notifications, and role-based access.
 
-Features • Tech Stack • Getting Started • Project Structure • Roadmap • Contributing
+[![Java](https://img.shields.io/badge/Java-17%2B-orange?logo=openjdk)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-Vite-61DAFB?logo=react)](https://react.dev/)
+[![MySQL](https://img.shields.io/badge/MySQL-8%2B-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.x-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-</div>
-📖 Overview
+**Repository:** https://github.com/Mefarhan18/EduCore
 
-EduCore is a modern, full-stack School Management System designed to streamline academic administration — from student and staff records to authentication and role-based access control. It pairs a secure, scalable Spring Boot REST API with a fast, responsive React frontend, giving schools a solid foundation to manage their day-to-day operations digitally.
+---
 
-The project ships with a complete authentication flow (JWT-based), a pre-configured database schema with seed data, and a clean, extensible architecture — so you can start building features on day one instead of wiring up boilerplate.
+## 📑 Table of Contents
 
-✨ Features
-🔐 Secure Authentication — JWT-based login with Spring Security
-🧑‍🤝‍🧑 Role-Based Access Control — Admin, Teacher, and Student roles (extensible)
-🗄️ Relational Data Model — MySQL schema with seed data included
-⚡ Modern Frontend — React + Vite for lightning-fast dev and builds
-🎨 Utility-First Styling — Tailwind CSS for rapid UI development
-🧭 Client-Side Routing — React Router for a smooth SPA experience
-🌍 Global State Management — React Context API
-🧱 Modular Architecture — Clean separation of concerns, ready to extend
-🛠 Tech Stack
-Layer	Technology
-Backend	Java 17, Spring Boot, Spring Security, Spring Data JPA, JWT
-Frontend	React.js, Vite, Tailwind CSS, React Router, Context API
-Database	MySQL
-Build Tools	Maven (backend), npm (frontend)
-🏗 Architecture
-┌─────────────────────┐        REST API (JWT)        ┌──────────────────────┐
-│   React Frontend     │ <───────────────────────────> │   Spring Boot API    │
-│  (Vite + Tailwind)   │        HTTPS / JSON           │ (Security, JPA, REST)│
-└─────────────────────┘                                └──────────┬───────────┘
-                                                                    │
-                                                                    │ JDBC
-                                                                    ▼
-                                                          ┌──────────────────┐
-                                                          │    MySQL DB      │
-                                                          │   (school_db)    │
-                                                          └──────────────────┘
-✅ Prerequisites
+- [📖 Overview](#-overview)
+- [✨ Features](#-features)
+- [👥 User Roles](#-user-roles)
+- [🏗️ Architecture](#️-architecture)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🔐 Authentication](#-authentication)
+- [📂 Project Structure](#-project-structure)
+- [🚀 Getting Started](#-getting-started)
+- [🔑 Default Login](#-default-login)
+- [🌐 API Overview](#-api-overview)
+- [🗄️ Database](#️-database)
+- [🧭 Roadmap](#-roadmap)
+- [🧪 Testing](#-testing)
+- [🐳 Docker](#-docker)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
 
-Make sure you have the following installed before you begin:
+---
 
-Java 17+
-Node.js & npm
-MySQL Server
-🚀 Getting Started
-1️⃣ Database Setup
-Open your MySQL client (MySQL Workbench, DBeaver, or the command line).
-Run the provided SQL script to create the database, tables, and seed data:
-bash
-   mysql -u root -p < database/schema.sql
+## 📖 Overview
 
-This creates the school_db database along with its tables and an initial admin user.
+EduCore is designed to help schools move from manual records and spreadsheet-based workflows toward a centralized digital management system.
 
-🔑 The seeded admin account uses a password hash for admin123. Change this before deploying to production.
+The application follows a **frontend + REST API + database** architecture:
 
-2️⃣ Backend Setup
-bash
-cd backend
+- A **React** frontend provides the user interface.
+- A **Spring Boot** backend exposes REST APIs and handles business logic.
+- **Spring Security + JWT** protect authenticated endpoints.
+- **Spring Data JPA / Hibernate** manages persistence.
+- **MySQL** stores application data.
 
-Update your database credentials in src/main/resources/application.properties if they differ from the defaults (root / root):
+### 🎯 Main Goals
 
-properties
+- Centralize school information in one system.
+- Provide secure, role-based access.
+- Reduce repetitive manual administration.
+- Make academic information easier to manage.
+- Provide a foundation that can be extended with additional modules.
+
+---
+
+## ✨ Features
+
+### 🔐 Authentication & Security
+
+- JWT-based authentication
+- Spring Security integration
+- Protected REST API endpoints
+- Role-based authorization
+- Admin, Teacher, and Student roles
+- Token-based authorization for subsequent API requests
+
+### 👨‍🎓 Student Management
+
+- Student profile management
+- Student academic information
+- Student records
+- Role-specific student access
+
+### 👨‍🏫 Teacher Management
+
+- Teacher profile management
+- Teacher records
+- Class-related teacher management
+- Role-specific teacher access
+
+### 🏫 Class Management
+
+- Class organization
+- Student-class relationships
+- Teacher-class relationships
+
+### 📅 Attendance
+
+- Attendance tracking
+- Attendance records
+- Student attendance history
+- Teacher-oriented attendance workflows
+
+### 📝 Results & Grades
+
+- Student marks
+- Examination results
+- Academic records
+- Result viewing
+- Report-card functionality planned for further development
+
+### 💰 Fee Management
+
+- Student fee records
+- Fee tracking
+- Payment records
+- Pending fee management
+
+### 📢 Notifications
+
+- School notifications
+- Student-related notifications
+- Role-specific notification handling
+- Notification management foundation
+
+### 📊 Dashboards
+
+- Role-specific access
+- Admin-oriented management views
+- Teacher-oriented views
+- Student-oriented views
+
+---
+
+## 👥 User Roles
+
+| Role | Access & Responsibilities |
+|---|---|
+| 👑 **Admin** | Manage users, students, teachers, classes, academic records, fees, notifications, and system access |
+| 👨‍🏫 **Teacher** | Access assigned academic functionality, attendance, classes, and student-related information |
+| 👨‍🎓 **Student** | View personal academic information, attendance, results, fees, and notifications |
+
+> Access is controlled through authentication and role-based authorization.
+
+---
+
+## 🏗️ Architecture
+
+```text
+┌──────────────────────────────┐
+│        React Frontend        │
+│                              │
+│  Vite • Tailwind • Router    │
+│  Context API • Components    │
+└──────────────┬───────────────┘
+               │
+               │ HTTP / JSON
+               │ Authorization: Bearer JWT
+               ▼
+┌──────────────────────────────┐
+│       Spring Boot API        │
+│                              │
+│  Controllers                 │
+│       ↓                      │
+│  Services                    │
+│       ↓                      │
+│  Repositories                │
+│       ↓                      │
+│  JPA / Hibernate             │
+│                              │
+│  Spring Security + JWT       │
+└──────────────┬───────────────┘
+               │
+               │ JDBC
+               ▼
+┌──────────────────────────────┐
+│        MySQL Database        │
+│                              │
+│          school_db           │
+└──────────────────────────────┘
+```
+
+---
+
+## 🔐 Authentication
+
+EduCore uses JWT-based authentication.
+
+```text
+1. User enters credentials
+            │
+            ▼
+2. React sends login request
+            │
+            ▼
+3. Spring Boot validates credentials
+            │
+            ▼
+4. Server generates JWT
+            │
+            ▼
+5. React stores the authentication token
+            │
+            ▼
+6. Token is attached to protected requests
+            │
+            ▼
+7. Spring Security validates the JWT
+            │
+            ▼
+8. Authorized request reaches the endpoint
+```
+
+### Request Authorization
+
+Protected requests use the standard Authorization header:
+
+```http
+Authorization: Bearer <JWT_TOKEN>
+```
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Language** | Java 17+ |
+| **Backend Framework** | Spring Boot 3.x |
+| **Security** | Spring Security + JWT |
+| **Persistence** | Spring Data JPA + Hibernate |
+| **API** | REST + JSON |
+| **Frontend** | React.js + Vite |
+| **Styling** | Tailwind CSS |
+| **Routing** | React Router |
+| **State Management** | React Context API |
+| **Database** | MySQL 8+ |
+| **Backend Build** | Maven |
+| **Frontend Package Manager** | npm |
+
+---
+
+## 📂 Project Structure
+
+```text
+EduCore/
+│
+├── backend/
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/
+│   │       │   └── com/
+│   │       │       └── example/
+│   │       │           └── backend/
+│   │       │               ├── controller/
+│   │       │               ├── service/
+│   │       │               ├── repository/
+│   │       │               ├── entity/
+│   │       │               ├── security/
+│   │       │               └── config/
+│   │       │
+│   │       └── resources/
+│   │           └── application.properties
+│   │
+│   ├── pom.xml
+│   ├── mvnw
+│   └── mvnw.cmd
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── context/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── App.jsx
+│   │
+│   ├── package.json
+│   └── vite.config.js
+│
+├── database/
+│   └── schema.sql
+│
+├── API_DOCUMENTATION.md
+├── README.md
+└── LICENSE
+```
+
+---
+
+## 🚀 Getting Started
+
+### 📋 Prerequisites
+
+Install the following software before running the project:
+
+- [Java 17 or higher](https://www.oracle.com/java/technologies/downloads/)
+- [Node.js and npm](https://nodejs.org/)
+- [MySQL 8 or higher](https://dev.mysql.com/downloads/mysql/)
+- Git
+
+Verify the installations:
+
+```bash
+java -version
+node -v
+npm -v
+mysql --version
+git --version
+```
+
+---
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/Mefarhan18/EduCore.git
+cd EduCore
+```
+
+---
+
+### 2️⃣ Database Setup
+
+Start your MySQL server and create the database:
+
+```sql
+CREATE DATABASE school_db;
+```
+
+The project includes a database schema and seed data in:
+
+```text
+database/schema.sql
+```
+
+You can execute it using:
+
+```bash
+mysql -u root -p < database/schema.sql
+```
+
+Or open `database/schema.sql` in MySQL Workbench and execute it there.
+
+---
+
+### 3️⃣ Configure the Backend
+
+Open:
+
+```text
+backend/src/main/resources/application.properties
+```
+
+Configure the database connection:
+
+```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/school_db
 spring.datasource.username=root
 spring.datasource.password=root
 
-Run the Spring Boot application:
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
 
-bash
-# Windows
+server.port=8080
+```
+
+Replace the username and password with your local MySQL credentials if necessary.
+
+> ⚠️ Do not commit real production database passwords or secrets to GitHub.
+
+---
+
+### 4️⃣ Start the Spring Boot Backend
+
+Open a terminal in the project root and run:
+
+#### Windows
+
+```bash
+cd backend
 mvnw.cmd spring-boot:run
+```
 
-# Mac/Linux
+#### Linux / macOS
+
+```bash
+cd backend
 ./mvnw spring-boot:run
+```
 
-The API server will start on http://localhost:8080.
+The backend API will be available at:
 
-3️⃣ Frontend Setup
-bash
+```text
+http://localhost:8080
+```
+
+---
+
+### 5️⃣ Start the React Frontend
+
+Open a **new terminal** and run:
+
+```bash
 cd frontend
 npm install
 npm run dev
+```
 
-Open your browser at http://localhost:5173.
+Vite will display the local development URL in the terminal.
 
-4️⃣ Log In
-Field	Value
-Username	admin
-Password	admin123
+The default URL is:
 
-⚠️ Update or remove this default credential before any production deployment.
+```text
+http://localhost:5173
+```
 
-📂 Project Structure
-EduCore/
-├── backend/                  # Spring Boot REST API
-│   ├── src/main/java/...     # Controllers, Services, Repositories, Entities
-│   ├── src/main/resources/   # application.properties, static resources
-│   └── mvnw / mvnw.cmd       # Maven wrapper
-├── frontend/                 # React (Vite) client
-│   ├── src/
-│   │   ├── components/       # Reusable UI components
-│   │   ├── pages/             # Route-level views
-│   │   ├── context/           # Auth & global state (Context API)
-│   │   └── routes/             # React Router configuration
-│   └── package.json
-├── database/
-│   └── schema.sql             # DB schema + seed data
-└── README.md
-🔒 Authentication Flow
-User submits credentials via the login form (React).
-Backend validates credentials and issues a JWT on success.
-The token is stored client-side and attached to the Authorization header on subsequent requests.
-Spring Security filters validate the token on each protected endpoint before granting access.
-🧭 Roadmap / Further Development
+---
 
-The core architecture (Security, Routing, Layout, State Management) is fully implemented, giving you a solid base to build on. Suggested next steps:
+## 🔑 Default Login
 
- Student, Teacher, and Class CRUD modules
- Attendance tracking system
- Grade/Report card management
- Fee management & payment integration
- Notice board / announcements
- Role-specific dashboards (Admin / Teacher / Student)
- Email notifications
- Docker Compose setup for one-command local deployment
- CI/CD pipeline (GitHub Actions)
- Unit & integration test coverage
-🤝 Contributing
+If the database seed data contains the default administrator account, use:
 
-Contributions are welcome! To contribute:
+| Field | Value |
+|---|---|
+| **Username** | `admin` |
+| **Password** | `admin123` |
+| **Role** | Admin |
 
-Fork the repository
-Create a feature branch: git checkout -b feature/your-feature
-Commit your changes: git commit -m "Add your feature"
-Push to the branch: git push origin feature/your-feature
-Open a Pull Request
+> ⚠️ **Security:** This is a development credential. Change or remove it before deploying the application to production.
 
-Please open an issue first for major changes so we can discuss what you'd like to do.
+---
 
-📄 License
+## 🌐 API Overview
 
-This project is licensed under the MIT License — see the LICENSE file for details.
+The backend exposes REST endpoints for the application's main modules.
 
-📬 Contact
+### 🔐 Authentication
 
-Questions, suggestions, or feedback? Feel free to open an issue on this repository.
+```http
+POST /api/auth/login
+```
 
-<div align="center">
+### 👨‍🎓 Students
 
-Made with ☕ and late nights, for schools that deserve better software.
+```http
+GET    /api/students
+GET    /api/students/{id}
+POST   /api/students
+PUT    /api/students/{id}
+DELETE /api/students/{id}
+```
 
-</div>
+### 👨‍🏫 Teachers
+
+```http
+GET    /api/teachers
+GET    /api/teachers/{id}
+POST   /api/teachers
+PUT    /api/teachers/{id}
+DELETE /api/teachers/{id}
+```
+
+### 📅 Attendance
+
+```http
+GET  /api/attendance
+POST /api/attendance
+```
+
+### 📝 Results
+
+```http
+GET  /api/results
+POST /api/results
+PUT  /api/results/{id}
+```
+
+For the complete endpoint list and request/response details, see:
+
+**[API_DOCUMENTATION.md](API_DOCUMENTATION.md)**
+
+---
+
+## 🗄️ Database
+
+EduCore uses **MySQL** for persistent data storage.
+
+The database schema is maintained in:
+
+```text
+database/schema.sql
+```
+
+### Core Data Relationships
+
+```text
+User
+├── Admin
+├── Teacher
+└── Student
+
+Student
+├── Attendance
+├── Results
+└── Fees
+
+Teacher
+└── Classes
+
+Class
+├── Students
+└── Teacher
+```
+
+The exact database structure should be treated as defined by `database/schema.sql`.
+
+---
+
+## 🧭 Roadmap
+
+### ✅ Foundation
+
+- [x] Spring Boot REST API
+- [x] React + Vite frontend
+- [x] MySQL database integration
+- [x] JWT authentication
+- [x] Spring Security
+- [x] Role-based access control
+- [x] React Router
+- [x] Context API
+- [x] Modular frontend/backend structure
+
+### 🚧 Further Development
+
+- [ ] Complete Student CRUD
+- [ ] Complete Teacher CRUD
+- [ ] Complete Class CRUD
+- [ ] Advanced attendance management
+- [ ] Complete grade and report-card management
+- [ ] PDF report-card generation
+- [ ] Fee management enhancements
+- [ ] Payment integration
+- [ ] Notice board and announcements
+- [ ] Email notifications
+- [ ] SMS notifications
+- [ ] Advanced role-specific dashboards
+- [ ] Docker Compose
+- [ ] GitHub Actions CI/CD
+- [ ] Unit test coverage
+- [ ] Integration test coverage
+
+---
+
+## 🧪 Testing
+
+The project can be extended with a dedicated automated testing suite using:
+
+- **JUnit**
+- **Mockito**
+- **Spring Boot Test**
+- **Integration Testing**
+- **Authentication and Authorization Testing**
+
+Recommended test coverage includes:
+
+```text
+Controller
+   ↓
+Service
+   ↓
+Repository
+   ↓
+Database
+```
+
+---
+
+## 🐳 Docker
+
+Docker Compose support is planned to simplify local deployment.
+
+The intended setup will contain:
+
+```text
+┌─────────────────────┐
+│   React Frontend    │
+└─────────┬───────────┘
+          │
+┌─────────▼───────────┐
+│ Spring Boot Backend │
+└─────────┬───────────┘
+          │
+┌─────────▼───────────┐
+│   MySQL Database    │
+└─────────────────────┘
+```
+
+Planned command:
+
+```bash
+docker compose up
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome.
+
+### 1. Fork the repository
+
+Create your own fork of the EduCore repository.
+
+### 2. Create a feature branch
+
+```bash
+git checkout -b feature/your-feature
+```
+
+### 3. Make your changes
+
+Implement and test your feature.
+
+### 4. Stage the changes
+
+```bash
+git add .
+```
+
+### 5. Commit
+
+```bash
+git commit -m "Add your feature"
+```
+
+### 6. Push
+
+```bash
+git push origin feature/your-feature
+```
+
+### 7. Open a Pull Request
+
+Open a Pull Request on GitHub and describe your changes.
+
+For large changes, open an issue first so the proposed changes can be discussed.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
+
+See the [LICENSE](LICENSE) file for details.
+
+---
+
+## ⭐ Support
+
+If you find EduCore useful, consider giving the repository a ⭐ on GitHub.
+
+Every contribution, issue, and suggestion helps improve the project.
+
+---
+
+## 🎓 EduCore
+
+**Modern technology for simpler school management.**
+
+Built with ☕ Java, ⚛️ React, and 🐬 MySQL.
