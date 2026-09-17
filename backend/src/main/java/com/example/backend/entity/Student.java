@@ -27,6 +27,10 @@ public class Student {
     @JoinColumn(name = "class_id")
     private Class studentClass;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Parent parent;
+
     private LocalDate dob;
     private String contact;
     private String address;

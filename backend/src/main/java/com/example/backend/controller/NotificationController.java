@@ -18,8 +18,11 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private com.example.backend.repository.UserRepository userRepository;
+
     @GetMapping
-    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN') or hasRole('PARENT')")
     public List<Notification> getMyNotifications() {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return notificationService.getNotificationsByUserId(userDetails.getId());
@@ -32,12 +35,37 @@ public class NotificationController {
     }
 
     @PutMapping("/{id}/read")
-    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN') or hasRole('PARENT')")
     public ResponseEntity<Notification> markAsRead(@PathVariable Long id) {
         Notification updated = notificationService.markAsRead(id);
         if (updated != null) {
             return ResponseEntity.ok(updated);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/bulk")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> sendBulkNotification(@RequestBody java.util.Map<String, Object> payload) {
+        List<Integer> userIds = (List<Integer>) payload.get("userIds");
+        String title = (String) payload.get("title");
+        String message = (String) payload.get("message");
+        String typeStr = (String) payload.get("type");
+        
+        Notification.NotificationType type = Notification.NotificationType.valueOf(typeStr);
+        
+        for (Integer userId : userIds) {
+            Notification notification = new Notification();
+            com.example.backend.entity.User user = userRepository.findById(userId.longValue()).orElse(null);
+            if (user != null) {
+                notification.setUser(user);
+                notification.setTitle(title);
+                notification.setMessage(message);
+                notification.setType(type);
+                notificationService.createNotification(notification);
+            }
+        }
+        
+        return ResponseEntity.ok().build();
     }
 }

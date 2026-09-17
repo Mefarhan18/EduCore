@@ -39,23 +39,28 @@ public class ResultController {
     }
 
     @GetMapping("/student/{studentId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PARENT')")
     public List<Result> getResultsByStudentId(@PathVariable Long studentId) {
         return resultService.getResultsByStudentId(studentId);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER') or hasRole('STUDENT') or hasRole('PARENT')")
     public ResponseEntity<Result> getResultById(@PathVariable Long id) {
         return resultService.getResultById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @Autowired
+    private com.example.backend.service.NotificationService notificationService;
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('TEACHER')")
     public Result createResult(@RequestBody Result result) {
-        return resultService.saveResult(result);
+        Result savedResult = resultService.saveResult(result);
+        sendResultNotification(savedResult);
+        return savedResult;
     }
 
     @PutMapping("/{id}")
@@ -65,8 +70,31 @@ public class ResultController {
             result.setMarks(resultDetails.getMarks());
             result.setGrade(resultDetails.getGrade());
             result.setExamTerm(resultDetails.getExamTerm());
-            return ResponseEntity.ok(resultService.saveResult(result));
+            Result savedResult = resultService.saveResult(result);
+            sendResultNotification(savedResult);
+            return ResponseEntity.ok(savedResult);
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    private void sendResultNotification(Result result) {
+        studentService.getStudentById(result.getStudent().getId()).ifPresent(student -> {
+            if (student.getUser() != null) {
+                com.example.backend.entity.Notification notif = new com.example.backend.entity.Notification();
+                notif.setUserId(student.getUser().getId());
+                notif.setTitle("New Result Posted");
+                notif.setMessage("A new result for " + result.getExamTerm() + " has been posted. Grade: " + result.getGrade());
+                notif.setType(com.example.backend.entity.Notification.NotificationType.RESULT);
+                notificationService.createNotification(notif);
+            }
+            if (student.getParent() != null && student.getParent().getUser() != null) {
+                com.example.backend.entity.Notification notif = new com.example.backend.entity.Notification();
+                notif.setUserId(student.getParent().getUser().getId());
+                notif.setTitle("Child Result Posted");
+                notif.setMessage("A new result for " + student.getName() + " has been posted. Grade: " + result.getGrade());
+                notif.setType(com.example.backend.entity.Notification.NotificationType.RESULT);
+                notificationService.createNotification(notif);
+            }
+        });
     }
 
     @DeleteMapping("/{id}")
