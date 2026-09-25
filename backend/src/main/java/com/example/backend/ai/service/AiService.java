@@ -43,7 +43,7 @@ public class AiService {
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
-    @Value("${gemini.model:gemini-1.5-flash}")
+    @Value("${gemini.model:gemini-2.5-flash}")
     private String geminiModel;
 
     @Value("${file.upload-dir:uploads}")
@@ -194,9 +194,9 @@ public class AiService {
         if (!models.contains("gemini-2.5-flash")) {
             models.add("gemini-2.5-flash");
         }
-        if (!models.contains("gemini-2.0-flash")) {
-            models.add("gemini-2.0-flash");
-        }
+        // if (!models.contains("gemini-2.0-flash")) {
+        //     models.add("gemini-2.0-flash");
+        // }
         if (!models.contains("gemini-3.5-flash")) {
             models.add("gemini-3.5-flash");
         }
