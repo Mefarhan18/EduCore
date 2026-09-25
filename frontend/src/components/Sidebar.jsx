@@ -57,7 +57,7 @@ export default function Sidebar() {
       <div className="h-16 flex items-center justify-center border-b border-indigo-500/30 shadow-sm">
         <div className="flex items-center gap-2">
           <GraduationCap className="w-8 h-8 text-white" />
-          <h1 className="text-2xl font-bold tracking-wider font-sans">SchoolHub</h1>
+          <h1 className="text-2xl font-bold tracking-wider font-sans">EduCode</h1>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto py-6 px-4">

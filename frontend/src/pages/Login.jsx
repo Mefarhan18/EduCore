@@ -23,7 +23,7 @@ export default function Login() {
     <div className="flex h-screen w-full items-center justify-center bg-transparent">
       <div className="w-full max-w-md bg-white/70 backdrop-blur-xl p-10 rounded-3xl shadow-2xl shadow-indigo-200 border border-white/50">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight">SchoolHub</h2>
+          <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 tracking-tight">EduCode</h2>
           <p className="text-sm text-indigo-900/60 mt-2">Welcome back! Please login to your account.</p>
         </div>
         {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
